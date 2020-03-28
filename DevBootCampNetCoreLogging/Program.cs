@@ -51,15 +51,17 @@ namespace DevBootCampNetCoreLogging
 
             .ConfigureAppConfiguration((hostingContext, config) =>
             {
-                config.Sources.Clear();
+                //config.Sources.Clear();
 
                 var env = hostingContext.HostingEnvironment;
-
                 config.AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
                       .AddJsonFile($"appsettings.{env.EnvironmentName}.json",
-                                     optional: true, reloadOnChange: true);
+                                     optional: true, reloadOnChange: true)
+                      .AddEnvironmentVariables();
+                
             })
-            .ConfigureLogging(logging =>
+
+            .ConfigureLogging((hostingContext, logging) =>
             {
                 //by default, CreateDefaultBuilder registers Console, Debug, EventSource, and (if Windows) EventLog. ClearProviders removes these registrations
                 logging.ClearProviders();
@@ -68,9 +70,13 @@ namespace DevBootCampNetCoreLogging
 
                 logging.AddAzureWebAppDiagnostics();
 
-                logging.AddApplicationInsights();
+                var appInsightKey = hostingContext.Configuration["APPINSIGHTS_INSTRUMENTATIONKEY"];
+                if (appInsightKey != null && appInsightKey != "")
+                {
+                    logging.AddApplicationInsights(appInsightKey);
+                }
             })
-                .UseStartup<Startup>();
+            .UseStartup<Startup>();
 
         //Note: Logging during host construction isn't directly supported. However, a separate logger can be used. 
         // See the following for an example of how to do this:
