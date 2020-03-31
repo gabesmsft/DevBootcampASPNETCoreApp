@@ -26,7 +26,7 @@ namespace DevBootCampNetCoreLogging.Controllers
         }
         public IActionResult Index()
         {
-
+            //throw new Exception("fake exception in index method");
             _logger.LogInformation("Entered Index method at: " + System.DateTime.UtcNow.ToString());
 
             string fakeAppSetting = _configuration["FakeAppSetting"];
